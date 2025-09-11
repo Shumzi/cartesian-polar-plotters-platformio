@@ -1,50 +1,31 @@
 #include <Arduino.h>
 #include <AccelStepper.h>
 #include "RotaryEncoder.h"
+#include "PolarMode.h"
+#include "CartesianMode.h"
 #include "Settings.h"
-#include "CartesianSettings.h"
+#include "PlotterSystem.h"
 
 // DEFINITIONS:
 void print_current_position();
 
-AccelStepper stepper_x(AccelStepper::DRIVER, STEP_1_PIN, DIR_1_PIN);
-AccelStepper stepper_y(AccelStepper::DRIVER, STEP_2_PIN, DIR_2_PIN);
-int current_x_pos = 0;
-int current_y_pos = 0;
+AccelStepper stepper_1(AccelStepper::DRIVER, STEP_1_PIN, DIR_1_PIN);
+AccelStepper stepper_2(AccelStepper::DRIVER, STEP_2_PIN, DIR_2_PIN);
+#if USE_POLAR_MODE
+Mode mode = new PolarMod
+#else
 
+#endif
 // USER INTERFACE OBJECTS
 
-RotaryEncoder encoder_x = RotaryEncoder(ENCODER_A_BIT_0, ENCODER_A_BIT_1, ENCODER_A_BUTTON);
-RotaryEncoder encoder_y = RotaryEncoder(ENCODER_B_BIT_0, ENCODER_B_BIT_1, ENCODER_B_BUTTON);
+RotaryEncoder encoder_1 = RotaryEncoder(ENCODER_A_BIT_0, ENCODER_A_BIT_1, ENCODER_A_BUTTON);
+RotaryEncoder encoder_2 = RotaryEncoder(ENCODER_B_BIT_0, ENCODER_B_BIT_1, ENCODER_B_BUTTON);
+PlotterSystem p = PlotterSystem(stepper_1, stepper_2, encoder_1, encoder_2, )
 unsigned long time_last_action = 0;
 bool uv_state = LOW;
 
 
 
-void move_to_switches()
-{
-    float max_speed_x = stepper_x.maxSpeed();
-    float max_speed_y = stepper_y.maxSpeed();
-    
-    stepper_x.setMaxSpeed(500);
-    stepper_y.setMaxSpeed(500);
-    stepper_x.moveTo(-5000);
-    stepper_y.moveTo(-5000);
-    
-    while(digitalRead(X_LIMIT_SW_PIN) || digitalRead(Y_LIMIT_SW_PIN))
-    {
-        if(digitalRead(X_LIMIT_SW_PIN))
-            stepper_x.run();
-        if(digitalRead(Y_LIMIT_SW_PIN))
-            stepper_y.run();
-    }
-    stepper_x.setCurrentPosition(0);
-    stepper_x.moveTo(0);
-    stepper_x.setMaxSpeed(max_speed_x);
-    stepper_y.setCurrentPosition(0);
-    stepper_y.moveTo(0);
-    stepper_y.setMaxSpeed(max_speed_y);
-}
 
 
 void print_current_position()
@@ -73,10 +54,7 @@ void setup()
     stepper_y.setEnablePin(EN_PIN);
     stepper_y.setPinsInverted(false,false,true);
     stepper_y.enableOutputs();
-    if(SYSTEM_TYPE == "cartesian")
-        cartesian_auto_homing();
-    else if(SYSTEM_TYPE == "polar")
-        polar_extra_setup_and_auto_homing();
+
 
 }
 
@@ -100,6 +78,7 @@ void check_idle()
         time_last_action = millis();
     }
 }
+
 void loop()
 {
     

@@ -1,9 +1,10 @@
-#include "Arduino.h"
+#pragma once
+
+#include <Arduino.h>
 #include "IMode.h"
-#include "IMotor.h"
+#include "AccelStepper.h"
 #include "Settings.h"
 #include "CartesianSettings.h"
-#include "AccelStepper.h"
 
 class CartesianMode : public IMode 
 {

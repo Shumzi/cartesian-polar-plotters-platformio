@@ -1,3 +1,5 @@
+#pragma once
+
 class IMode {
 public:
     virtual bool updateEndEffector(int delta1, int delta2) = 0; // movement

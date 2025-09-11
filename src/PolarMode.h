@@ -1,8 +1,10 @@
+#pragma once
+
 #include "Arduino.h"
-#include "Settings.h"
-#include "PolarSettings.h"
 #include "IMode.h"
 #include "AccelStepper.h"
+#include "Settings.h"
+#include "PolarSettings.h"
 
 
 class PolarMode : public IMode {
