@@ -12,7 +12,7 @@ void print_current_position();
 AccelStepper stepper_1(AccelStepper::DRIVER, STEP_1_PIN, DIR_1_PIN);
 AccelStepper stepper_2(AccelStepper::DRIVER, STEP_2_PIN, DIR_2_PIN);
 #if USE_POLAR_MODE
-Mode mode = new PolarMod
+Mode mode = new PolarMode()
 #else
 
 #endif

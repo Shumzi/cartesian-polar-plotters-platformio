@@ -14,6 +14,8 @@ class PolarMode : public IMode {
     
     public:
 
+    PolarMode(AccelStepper stepper_left, AccelStepper stepper_right)
+    :stepper_left(stepper_left),stepper_right(stepper_right) {}
     /**
     given the current lengths of the belts 
     */
@@ -69,5 +71,10 @@ class PolarMode : public IMode {
         move_to_switches();
         stepper_left.setCurrentPosition(0);
         stepper_right.setCurrentPosition(0);
+    }
+
+    bool updateEndEffector(int delta1, int delta2) override
+    {
+
     }
 };
