@@ -50,8 +50,6 @@
 #define ENCODER_B_BIT_0 (12) // input IO for gray code bit 1
 #define ENCODER_A_BUTTON (A2)
 #define ENCODER_B_BUTTON (A3)
-#define ENCODER_READ_INTERVAL 200 //microseconds
-#define STEPS_PER_CLICK 300
 
 //UV LED CONFIGURATIONS
 #define UV_PIN 7
