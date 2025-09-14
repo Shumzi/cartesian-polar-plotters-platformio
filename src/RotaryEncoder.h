@@ -6,17 +6,17 @@
 
 class RotaryEncoder : public IEncoder
 {
-    private:
+  private:
     const int bit_0_pin_;
     const int bit_1_pin_;
     const int push_button_pin_;
-  
+
     unsigned long time_stamp_;
-  
+
     byte prev_encoder_read_;
     byte new_encoder_read_;
-    public:
-    int readDelta()
+  public:  
+  int readDelta()
     {
       prev_encoder_read_ = new_encoder_read_ ;
       new_encoder_read_ = (((digitalRead(bit_1_pin_)) << 1) + (digitalRead(bit_0_pin_))) ;
@@ -32,28 +32,17 @@ class RotaryEncoder : public IEncoder
       }
     }
 
-  RotaryEncoder(int bit_0_pin,int bit_1_pin,int push_button_pin)
-  :bit_0_pin_(bit_0_pin),bit_1_pin_(bit_1_pin),push_button_pin_(push_button_pin),time_stamp_(0),
-  prev_encoder_read_(0), new_encoder_read_(0)
-  {
-    pinMode(bit_0_pin_, INPUT_PULLUP);  
-    pinMode(bit_1_pin_, INPUT_PULLUP);  
-    pinMode(push_button_pin_, INPUT_PULLUP);
-    time_stamp_ = millis();
-  }
+    RotaryEncoder(int bit_0_pin,int bit_1_pin,int push_button_pin)
+    :bit_0_pin_(bit_0_pin),bit_1_pin_(bit_1_pin),push_button_pin_(push_button_pin),
+    prev_encoder_read_(0), new_encoder_read_(0)
+    {
+      pinMode(bit_0_pin_, INPUT_PULLUP);  
+      pinMode(bit_1_pin_, INPUT_PULLUP);  
+      pinMode(push_button_pin_, INPUT_PULLUP);
+    }
 
-
-
-  bool is_pressed(){
-  return !digitalRead(push_button_pin_);
-  }
-  
-//  void read_encoder_toggle_press(Encoder &encoder_a, Encoder &encoder_b, int *UV_state)
-//  {
-//     if(!Encoder::is_pressed_ && (encoder_a.is_pressed() || encoder_b.is_pressed()))
-//     {
-//       Encoder::is_pressed_ = true;
-//     }
-//  }
+    bool is_pressed(){
+      return !digitalRead(push_button_pin_);
+    }
 
 };

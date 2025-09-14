@@ -24,16 +24,17 @@
  * Mechanical encoder like https://www.aliexpress.com/item/1005005239756119.html 
  */ 
 
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#pragma once
 
-#define USE_POLAR_MODE true
+#define USE_POLAR_MODE false
 
 #if USE_POLAR_MODE
 #include "PolarSettings.h"
 #else
 #include "CartesianSettings.h"
 #endif
+
+#define DEBUG_MODE false
 
 // STEPPERS CONFIGURATIONS
 #define STEP_1_PIN 5
@@ -54,11 +55,9 @@
 
 //UV LED CONFIGURATIONS
 #define UV_PIN 7
-#define PEN_AUTO_TURN_OFF_TIME 3
+#define PEN_AUTO_TURN_OFF_TIME 3000 // ms
 
 // SOFT LIMITS SETTINGS
 #define ENABLE_SOFT_LIMIT 1 // uncomment to disable soft limits
 
 struct Point { float x, y; };
-
-#endif

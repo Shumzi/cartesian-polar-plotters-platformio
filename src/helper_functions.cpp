@@ -31,12 +31,12 @@
 //     {
 //         if(!is_pressed)
 //         {
-//             stepper_x.moveTo(0);
-//             stepper_y.moveTo(0);
-//             while(stepper_x.run() || stepper_y.run())
+//             stepper_x->moveTo(0);
+//             stepper_y->moveTo(0);
+//             while(stepper_x->run() || stepper_y->run())
 //             {
-//                 stepper_x.run();
-//                 stepper_y.run();
+//                 stepper_x->run();
+//                 stepper_y->run();
 //             }
 //             encoder_x.reset_counter();
 //             encoder_y.reset_counter();
