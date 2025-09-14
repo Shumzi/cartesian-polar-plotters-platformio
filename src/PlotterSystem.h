@@ -14,10 +14,13 @@ private:
     IEncoder* encoder1;
     IEncoder* encoder2;
     IMode* mode;
-    int ledPin;
     bool uv_state = false;
     unsigned long lastMovementTime;
-
+    // int encoder_1_register[4] = {0,0,0,0};
+    // int encoder_2_register[4] = {0,0,0,0};
+    // int encoder_1_register_loc = 0;
+    // int encoder_2_register_loc = 0;
+    
     void update_uv()
     {
         lastMovementTime = millis();
@@ -30,7 +33,7 @@ private:
 
     void check_idle()
     {
-        if (uv_state && ((millis() - lastMovementTime) > PEN_AUTO_TURN_OFF_TIME))
+        if (uv_state && ((millis() - lastMovementTime) > UV_AUTO_TURN_OFF_TIME))
         {
             uv_state = LOW;
             digitalWrite (UV_PIN, uv_state);
@@ -40,16 +43,19 @@ private:
 
 public:
     PlotterSystem(AccelStepper* m1, AccelStepper* m2, IEncoder* e1, IEncoder* e2, IMode* md)
-    : motor1(m1), motor2(m2), encoder1(e1), encoder2(e2), mode(md)
-    {
-        lastMovementTime = millis();
-        pinMode(ledPin, OUTPUT);
+    : motor1(m1), motor2(m2), encoder1(e1), encoder2(e2), mode(md), lastMovementTime(millis()) 
+    { 
+        pinMode(UV_PIN, OUTPUT);
     }
         
     void loop() 
     {
         int delta1 = encoder1->readDelta();
         int delta2 = encoder2->readDelta();
+        // if (delta1 != 0)
+        //     encoder_1_register[encoder_1_register_loc];
+        // if (delta2 != 0)
+        //     encoder_2_register[encoder_2_register_loc];
         bool moved = mode->updateEndEffector(delta1, delta2);
         motor1->run();
         motor2->run();

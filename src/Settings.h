@@ -50,12 +50,13 @@
 #define ENCODER_B_BIT_0 (12) // input IO for gray code bit 1
 #define ENCODER_A_BUTTON (A2)
 #define ENCODER_B_BUTTON (A3)
+#define ENCODER_READ_INTERVAL 200 //microseconds
 
 //UV LED CONFIGURATIONS
 #define UV_PIN 7
-#define PEN_AUTO_TURN_OFF_TIME 3000 // ms
+#define UV_AUTO_TURN_OFF_TIME 3000 // ms
 
 // SOFT LIMITS SETTINGS
-#define ENABLE_SOFT_LIMIT 1 // uncomment to disable soft limits
+#define ENABLE_SOFT_LIMIT false
 
 struct Point { float x, y; };

@@ -33,30 +33,27 @@ class CartesianMode : public IMode
 
         bool updateEndEffector(int dx, int dy) override 
         {
+            if(dx == 0 && dy == 0)
+                return false;
             long nx = x + dx * STEPPER_X_STEPSIZE;
             long ny = y + dy * STEPPER_Y_STEPSIZE;
             #if ENABLE_SOFT_LIMIT
             if (nx < 0 || nx > canvasWidth || ny < 0 || ny > canvasHeight)
                 return false; // out of bounds
             #endif
-            if(dx != 0 || dy != 0)
-            {
-                x = nx;
-                y = ny;
-                stepper_x->moveTo(x);
-                stepper_y->moveTo(y);
-                #if DEBUG_MODE
-                Serial.println("delta:");
-                Serial.println(dx);
-                Serial.println(dy);
-                Serial.print("moving to");
-                Serial.println(x);
-                Serial.println(y);
-                #endif
-                return true;
-            }
-            else
-                return false;
+            x = nx;
+            y = ny;
+            stepper_x->moveTo(x);
+            stepper_y->moveTo(y);
+            #if DEBUG_MODE
+            Serial.println("delta:");
+            Serial.println(dx);
+            Serial.println(dy);
+            Serial.print("moving to");
+            Serial.println(x);
+            Serial.println(y);
+            #endif
+            return true;
         }
 
         void calibrate() override
