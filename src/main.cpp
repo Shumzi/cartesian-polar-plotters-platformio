@@ -13,7 +13,7 @@ void print_current_position();
 AccelStepper stepper_1(AccelStepper::DRIVER, STEP_1_PIN, DIR_1_PIN);
 AccelStepper stepper_2(AccelStepper::DRIVER, STEP_2_PIN, DIR_2_PIN);
 #if USE_POLAR_MODE
-PolarMode mode = PolarMode(stepper_1, stepper_2);
+PolarMode mode = PolarMode(&stepper_1, &stepper_2, 0,0);
 #else
 CartesianMode mode = CartesianMode(&stepper_1, &stepper_2, X_MAX_LIMIT - X_MIN_LIMIT, Y_MAX_LIMIT - Y_MIN_LIMIT);
 #endif

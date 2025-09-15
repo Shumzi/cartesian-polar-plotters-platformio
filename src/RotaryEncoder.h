@@ -43,8 +43,9 @@ class RotaryEncoder : public IEncoder
       pinMode(push_button_pin_, INPUT_PULLUP);
     }
 
-    bool is_pressed(){
+    bool is_pressed() override{
       return !digitalRead(push_button_pin_);
     }
+
 
 };

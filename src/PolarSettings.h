@@ -1,7 +1,7 @@
 #pragma once
 
 #define MAX_SPEED 2000
-#define ACCELERATION 500
+#define ACCELERATION 1500
 
 // MAGNETIC LIMIT SWITCHES
 #define LEFT_LIMIT_SW_PIN 10
@@ -11,6 +11,7 @@
 #define X_MIN_LIMIT (-8500)
 #define Y_MAX_LIMIT 5000
 #define X_MAX_LIMIT 5000
+
 
 #define DIST_BETWEEN_MOTORS 100
 
