@@ -45,7 +45,7 @@ class CartesianMode : public IMode
             y = ny;
             stepper_x->moveTo(x);
             stepper_y->moveTo(y);
-            #if DEBUG_MODE
+            #if MOTOR_DEBUG
             Serial.println("delta:");
             Serial.println(dx);
             Serial.println(dy);

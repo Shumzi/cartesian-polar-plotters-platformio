@@ -34,7 +34,8 @@
 #include "CartesianSettings.h"
 #endif
 
-#define DEBUG_MODE false
+#define MOTOR_DEBUG false
+#define ENCODER_DEBUG true
 
 // STEPPERS CONFIGURATIONS
 #define STEP_1_PIN 5
