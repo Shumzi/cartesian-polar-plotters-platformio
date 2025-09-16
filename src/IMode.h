@@ -6,4 +6,5 @@ class IMode {
         virtual void calibrate() = 0; // calibration inside the mode]
         virtual Point get_motor_lengths() = 0;
         virtual void go_home() = 0;
+
 };

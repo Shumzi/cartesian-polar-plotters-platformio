@@ -1,6 +1,6 @@
 #pragma once
 
-#define MINI_SETUP false
+#define MINI_SETUP true
 
 #define X_MAX_SPEED 3000
 #define Y_MAX_SPEED 2000

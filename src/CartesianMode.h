@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include "IMode.h"
 #include "AccelStepper.h"
+#include <MultiStepper.h>
 #include "Settings.h"
 #include "CartesianSettings.h"
 
@@ -11,11 +12,19 @@ class CartesianMode : public IMode
     private:
         AccelStepper* stepper_x;
         AccelStepper* stepper_y;
-        int canvasWidth, canvasHeight;
         int x, y; // current end effector position
+
+        /// @brief test if the given coords are in the legal area (defined in settings.h), with a possible margin around the legal area acting as a deadband (bc of possible jittery input).
+        bool is_within_bounds(long x, long y, int margin=0)
+        {
+            if (x < (X_MIN_LIMIT + margin) || x > (X_MAX_LIMIT - margin) || y < (Y_MIN_LIMIT + margin) || y > (Y_MAX_LIMIT - margin))
+                return false;
+            return true;
+        }
+
     public:
-        CartesianMode(AccelStepper* xm, AccelStepper* ym, long w, long h)
-            : stepper_x(xm), stepper_y(ym), canvasWidth(w), canvasHeight(h), x(0), y(0)
+        CartesianMode(AccelStepper* xm, AccelStepper* ym)
+            : stepper_x(xm), stepper_y(ym), x(0), y(0)
             {
                 stepper_x->setMaxSpeed(X_MAX_SPEED * STEPPER_STEPSIZE);
                 stepper_x->setAcceleration(X_ACCELERATION * STEPPER_STEPSIZE);
@@ -25,26 +34,27 @@ class CartesianMode : public IMode
                 stepper_y->setPinsInverted(false,false,true);
                 stepper_y->enableOutputs();
             }
-        
-        void test()
-        {
-            Serial.println("test from Cartesian Mode");
-        }
 
         bool updateEndEffector(int dx, int dy) override 
         {
             if(dx == 0 && dy == 0)
                 return false;
-            long nx = x + dx * STEPPER_STEPSIZE;
-            long ny = y + dy * STEPPER_STEPSIZE;
+            long nx = x + dx;
+            long ny = y + dy;
+
             #if ENABLE_SOFT_LIMIT
-            if (nx < 0 || nx > canvasWidth || ny < 0 || ny > canvasHeight)
-                return false; // out of bounds
+            if(!is_within_bounds(nx, ny))
+                return false;            
             #endif
             x = nx;
             y = ny;
-            stepper_x->moveTo(x);
-            stepper_y->moveTo(y);
+            #if ENABLE_SOFT_LIMIT
+            // deadband test - if is within deadband update coords but don't move to the edge.
+            if(!is_within_bounds(nx, ny, 5))
+                return false;            
+            #endif
+            stepper_x->moveTo(x * STEPPER_STEPSIZE);
+            stepper_y->moveTo(y * STEPPER_STEPSIZE);
             #if DEBUG_MODE
             Serial.println("delta:");
             Serial.println(dx);
@@ -60,6 +70,11 @@ class CartesianMode : public IMode
         {
             // Serial.println("not calibrating now");
             // return;
+            Serial.println(X_MAX_LIMIT);
+            Serial.println(Y_MAX_LIMIT);
+            Serial.println(X_MIN_LIMIT);
+            Serial.println(Y_MIN_LIMIT);
+            
             Serial.println("homing");
             Serial.print("xMotor loc");
             Serial.println(stepper_x->currentPosition());
@@ -88,22 +103,23 @@ class CartesianMode : public IMode
             stepper_x->setCurrentPosition(0);
             stepper_y->setCurrentPosition(0);
         }
-        
-    Point get_motor_lengths()
-    {
-        return Point{x,y};
-    }
-
-    void go_home() override
-    {
-        stepper_x->moveTo(0);
-        stepper_y->moveTo(0);
-        while(stepper_x->run() || stepper_y->run())
+            
+        Point get_motor_lengths()
         {
-            stepper_x->run();
-            stepper_y->run();
+            return Point{x,y};
         }
-        x = 0;
-        y = 0;
-    }
+
+        void go_home() override
+        {
+            stepper_x->moveTo(0);
+            stepper_y->moveTo(0);
+            while(stepper_x->run() || stepper_y->run())
+            {
+                stepper_x->run();
+                stepper_y->run();
+            }
+            x = 0;
+            y = 0;
+        }
+
 };

@@ -82,6 +82,15 @@ public:
     {
         int delta1 = encoder1->readDelta();
         int delta2 = encoder2->readDelta();
+        #if ENCODER_DEBUG
+        if(delta1 != 0 || delta2 != 0)
+        {
+            Serial.print("system got from encoder: ");
+            Serial.println(delta1);
+            Serial.println(delta2);   
+        }
+        #endif
+
         bool moved = mode->updateEndEffector(delta1, delta2);
         motor1->run();
         motor2->run();
