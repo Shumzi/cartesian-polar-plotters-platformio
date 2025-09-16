@@ -22,6 +22,20 @@ class CartesianMode : public IMode
             return true;
         }
 
+        void go_to(int nx, int ny)
+        {
+            x = nx;
+            y = ny;
+            stepper_x->moveTo(x);
+            stepper_y->moveTo(y);
+            while(stepper_x->run() || stepper_y->run())
+            {
+                stepper_x->run();
+                stepper_y->run();
+            }
+            
+        }
+
     public:
         CartesianMode(AccelStepper* xm, AccelStepper* ym)
             : stepper_x(xm), stepper_y(ym), x(0), y(0)
@@ -109,17 +123,18 @@ class CartesianMode : public IMode
             return Point{x,y};
         }
 
-        void go_home() override
+        Point get_xy()
         {
-            stepper_x->moveTo(0);
-            stepper_y->moveTo(0);
-            while(stepper_x->run() || stepper_y->run())
-            {
-                stepper_x->run();
-                stepper_y->run();
-            }
-            x = 0;
-            y = 0;
+            return Point{x,y};
         }
 
+        void go_home() override
+        {
+            go_to(0,0);
+        }
+        
+        void go_to_start_of_maze()
+        {
+            go_to(CARTESIAN_X_MAZE,CARTESIAN_Y_MAZE);
+        }
 };

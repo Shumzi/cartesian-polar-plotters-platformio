@@ -30,7 +30,8 @@
 
 #define ENABLE_SOFT_LIMIT true
 
-#define DEBUG_MODE true
+#define DEBUG_MODE false
+#define PRODUCTION_MODE true // disables buttons
 #define ENCODER_DEBUG false
 
 // STEPPERS CONFIGURATIONS
@@ -39,8 +40,6 @@
 #define DIR_1_PIN 2
 #define DIR_2_PIN 3
 #define EN_PIN 8 // common enable pin for both motors.
-
-#define STEPPER_STEPSIZE 4
 
 // ENCODERS CONFIGURATIONS
 #define ENCODER_A_BIT_1 (A0) // input IO for gray code bit 0 
@@ -54,5 +53,6 @@
 //UV LED CONFIGURATIONS
 #define UV_PIN 7
 #define UV_AUTO_TURN_OFF_TIME 3000 // ms
+#define GO_TO_START_OF_MAZE 60000 // ms
 
 struct Point { int x, y; };

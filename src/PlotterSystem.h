@@ -15,9 +15,10 @@ private:
     IEncoder* encoder2;
     IMode* mode;
     bool uv_state = false;
+    bool went_to_start_of_maze = false;
     unsigned long lastMovementTime;
     
-    void update_uv()
+    void update_moved()
     {
         lastMovementTime = millis();
         if (!uv_state)
@@ -25,6 +26,7 @@ private:
             uv_state = HIGH;
             digitalWrite(UV_PIN, uv_state);
         }
+        went_to_start_of_maze = false;
     }
 
     void check_idle()
@@ -33,7 +35,11 @@ private:
         {
             uv_state = LOW;
             digitalWrite (UV_PIN, uv_state);
-            lastMovementTime = millis();
+        }
+        if (!went_to_start_of_maze && (millis() - lastMovementTime) > GO_TO_START_OF_MAZE)
+        {
+            mode->go_to_start_of_maze();
+            went_to_start_of_maze = true;
         }
     }
 
@@ -71,6 +77,25 @@ private:
             was_pressed = false;
     }
 
+    void print_xy_when_press(IEncoder* e)
+    {
+        static bool was_pressed = false;
+        if(e->is_pressed())
+        {
+            if(!was_pressed)
+            {
+                Point locs = mode->get_xy();
+                Serial.print("X Count: ");
+                Serial.println(locs.x);
+                Serial.print("Y Count: ");
+                Serial.println(locs.y);
+            }
+            was_pressed = true;
+        }
+        else
+            was_pressed = false;
+    }
+
 public:
     PlotterSystem(AccelStepper* m1, AccelStepper* m2, IEncoder* e1, IEncoder* e2, IMode* md)
     : motor1(m1), motor2(m2), encoder1(e1), encoder2(e2), mode(md), lastMovementTime(millis()) 
@@ -96,13 +121,19 @@ public:
         motor2->run();
 
         if(moved)
-            update_uv();
+            update_moved();
         else
             check_idle();
-
-        print_stats_when_press(encoder1);
-        home_when_press(encoder2);
+        #if !PRODUCTION_MODE
+        home_when_press(encoder1);
+        print_xy_when_press(encoder2);
+        #endif
     }
 
-    void calibrate() { mode->calibrate(); }
+    void calibrate() 
+    { 
+        mode->calibrate(); 
+        lastMovementTime = millis();
+    }
+
 };
