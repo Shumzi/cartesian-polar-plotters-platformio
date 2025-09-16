@@ -16,10 +16,6 @@ private:
     IMode* mode;
     bool uv_state = false;
     unsigned long lastMovementTime;
-    // int encoder_1_register[4] = {0,0,0,0};
-    // int encoder_2_register[4] = {0,0,0,0};
-    // int encoder_1_register_loc = 0;
-    // int encoder_2_register_loc = 0;
     
     void update_uv()
     {
@@ -41,13 +37,47 @@ private:
         }
     }
 
+    void home_when_press(IEncoder* enc)
+    {
+        static bool was_pressed = false;
+        if(enc->is_pressed())
+        {
+            if(!was_pressed)
+            {
+                mode->go_home();
+            }
+            was_pressed = true;
+        }
+        else
+            was_pressed = false;
+    }
+    
+    void print_stats_when_press(IEncoder* e)
+    {
+        static bool was_pressed = false;
+        if(e->is_pressed())
+        {
+            if(!was_pressed)
+            {
+                Point locs = mode->get_motor_lengths();
+                Serial.print("motor 1 Count: ");
+                Serial.println(locs.x);
+                Serial.print(", motor 2 Count: ");
+                Serial.println(locs.y);
+            }
+            was_pressed = true;
+        }
+        else
+            was_pressed = false;
+    }
+
 public:
     PlotterSystem(AccelStepper* m1, AccelStepper* m2, IEncoder* e1, IEncoder* e2, IMode* md)
     : motor1(m1), motor2(m2), encoder1(e1), encoder2(e2), mode(md), lastMovementTime(millis()) 
     { 
         pinMode(UV_PIN, OUTPUT);
     }
-        
+
     void loop() 
     {
         int delta1 = encoder1->readDelta();
@@ -60,6 +90,7 @@ public:
             Serial.println(delta2);   
         }
         #endif
+
         bool moved = mode->updateEndEffector(delta1, delta2);
         motor1->run();
         motor2->run();
@@ -68,6 +99,9 @@ public:
             update_uv();
         else
             check_idle();
+
+        print_stats_when_press(encoder1);
+        home_when_press(encoder2);
     }
 
     void calibrate() { mode->calibrate(); }

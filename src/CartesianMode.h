@@ -26,10 +26,10 @@ class CartesianMode : public IMode
         CartesianMode(AccelStepper* xm, AccelStepper* ym)
             : stepper_x(xm), stepper_y(ym), x(0), y(0)
             {
-                stepper_x->setMaxSpeed(X_MAX_SPEED * STEPPER_X_STEPSIZE);
-                stepper_x->setAcceleration(X_ACCELERATION * STEPPER_X_STEPSIZE);
-                stepper_y->setMaxSpeed(Y_MAX_SPEED * STEPPER_Y_STEPSIZE);
-                stepper_y->setAcceleration(Y_ACCELERATION * STEPPER_Y_STEPSIZE);
+                stepper_x->setMaxSpeed(X_MAX_SPEED * STEPPER_STEPSIZE);
+                stepper_x->setAcceleration(X_ACCELERATION * STEPPER_STEPSIZE);
+                stepper_y->setMaxSpeed(Y_MAX_SPEED * STEPPER_STEPSIZE);
+                stepper_y->setAcceleration(Y_ACCELERATION * STEPPER_STEPSIZE);
                 stepper_y->setEnablePin(EN_PIN);
                 stepper_y->setPinsInverted(false,false,true);
                 stepper_y->enableOutputs();
@@ -39,9 +39,9 @@ class CartesianMode : public IMode
         {
             if(dx == 0 && dy == 0)
                 return false;
-
             long nx = x + dx;
             long ny = y + dy;
+
             #if ENABLE_SOFT_LIMIT
             if(!is_within_bounds(nx, ny))
                 return false;            
@@ -74,11 +74,12 @@ class CartesianMode : public IMode
             Serial.println(Y_MAX_LIMIT);
             Serial.println(X_MIN_LIMIT);
             Serial.println(Y_MIN_LIMIT);
+            
             Serial.println("homing");
             Serial.print("xMotor loc");
             Serial.println(stepper_x->currentPosition());
             // pin to left
-            stepper_x->moveTo(stepper_x->currentPosition() - (X_MAX_LIMIT + 100 - X_MIN_LIMIT) * STEPPER_X_STEPSIZE);
+            stepper_x->moveTo(stepper_x->currentPosition() - (X_MAX_LIMIT + 100 - X_MIN_LIMIT) * STEPPER_STEPSIZE);
             float acc = stepper_x->acceleration();
             float max_speed = stepper_x->maxSpeed();
             stepper_x->setAcceleration(100);
@@ -87,7 +88,7 @@ class CartesianMode : public IMode
             // move to middle
             stepper_x->setAcceleration(acc);
             stepper_x->setMaxSpeed(max_speed);
-            stepper_x->moveTo(stepper_x->currentPosition() + X_HOMING_OFFSET * STEPPER_X_STEPSIZE);
+            stepper_x->moveTo(stepper_x->currentPosition() + X_HOMING_OFFSET * STEPPER_STEPSIZE);
             stepper_x->runToPosition();
             Serial.println("moved x");
             // move to bottom
@@ -97,7 +98,7 @@ class CartesianMode : public IMode
             stepper_y->enableOutputs();
             Serial.println("enabled y");
             // move to middle
-            stepper_y->moveTo(stepper_y->currentPosition() + Y_HOMING_OFFSET * STEPPER_Y_STEPSIZE);
+            stepper_y->moveTo(stepper_y->currentPosition() + Y_HOMING_OFFSET * STEPPER_STEPSIZE);
             stepper_y->runToPosition();
             stepper_x->setCurrentPosition(0);
             stepper_y->setCurrentPosition(0);
@@ -120,4 +121,5 @@ class CartesianMode : public IMode
             x = 0;
             y = 0;
         }
+
 };

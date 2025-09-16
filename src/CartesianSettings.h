@@ -7,9 +7,6 @@
 #define X_ACCELERATION 1500
 #define Y_ACCELERATION 1000
 
-#define STEPPER_X_STEPSIZE 4
-#define STEPPER_Y_STEPSIZE 4
-
 // settings for the miniature version of the cartesian setup (i.e. not the full-size exhibit one)
 #if MINI_SETUP
 #define X_HOMING_OFFSET 250

@@ -26,7 +26,7 @@
 
 #pragma once
 
-#define USE_POLAR_MODE false
+#define USE_POLAR_MODE true
 
 #define ENABLE_SOFT_LIMIT true
 
@@ -39,6 +39,8 @@
 #define DIR_1_PIN 2
 #define DIR_2_PIN 3
 #define EN_PIN 8 // common enable pin for both motors.
+
+#define STEPPER_STEPSIZE 4
 
 // ENCODERS CONFIGURATIONS
 #define ENCODER_A_BIT_1 (A0) // input IO for gray code bit 0 

@@ -15,33 +15,40 @@ class PolarMode : public IMode {
 
     void start_calibrate_switches(AccelStepper* as)
     {
-        float max_speed = as->maxSpeed();
+        as->setAcceleration(500);
         as->setMaxSpeed(500);
         as->moveTo(-5000);
-        return max_speed;
     }
 
-    void finish_calibrate_switches(AccelStepper* as, float speed)
+    void finish_calibrate_switches(AccelStepper* as)
     {   
         as->setCurrentPosition(0);
         as->moveTo(0);
-        as->setMaxSpeed(speed);
+        as->setMaxSpeed(MAX_SPEED);
+        as->setAcceleration(ACCELERATION);
     }   
 
     void move_counterweights_to_switches()
     {
         Serial.println("moving counterweights to switches");
+
         start_calibrate_switches(stepper_left);
         start_calibrate_switches(stepper_right);
         bool left_at_target = false;
         bool right_at_target = false;
         while(digitalRead(LEFT_LIMIT_SW_PIN) || digitalRead(RIGHT_LIMIT_SW_PIN))
         {
-            if(digitalRead(LEFT_LIMIT_SW_PIN))
+            if(digitalRead(LEFT_LIMIT_SW_PIN) && !left_at_target)
                 stepper_left->run();
-            if(digitalRead(RIGHT_LIMIT_SW_PIN))
+            else
+                left_at_target = true;
+
+            if(digitalRead(RIGHT_LIMIT_SW_PIN) && !right_at_target)
                 stepper_right->run();
+            else
+                right_at_target = true;
         }
+
         finish_calibrate_switches(stepper_left);
         finish_calibrate_switches(stepper_right);
 
@@ -75,6 +82,10 @@ class PolarMode : public IMode {
     {
         pinMode(LEFT_LIMIT_SW_PIN, INPUT_PULLUP);
         pinMode(RIGHT_LIMIT_SW_PIN, INPUT_PULLUP);
+        stepper_left->setMaxSpeed(MAX_SPEED);
+        stepper_right->setMaxSpeed(MAX_SPEED);
+        stepper_left->setAcceleration(ACCELERATION);
+        stepper_right->setAcceleration(ACCELERATION);
     }
     /**
     given the current lengths of the belts 
@@ -102,6 +113,7 @@ class PolarMode : public IMode {
         // int l1 = int(sqrt(h * h + w * w)) * RIGHT_STEPS_PER_MM;
         // return Point{l1,l2};
         return Point{0,0};
+
     }
         
     
@@ -111,6 +123,7 @@ class PolarMode : public IMode {
         finish_calibrate_switches(stepper_left);
         finish_calibrate_switches(stepper_right);
         #else
+
         initial_move_cables_up();
         move_counterweights_to_switches();
         #endif
@@ -155,6 +168,7 @@ class PolarMode : public IMode {
     {
         stepper_left->moveTo(POLAR_LEFT_HOME);
         stepper_right->moveTo(POLAR_RIGHT_HOME);
+
         while(stepper_left->run() || stepper_right->run())
         {
             stepper_left->run();
