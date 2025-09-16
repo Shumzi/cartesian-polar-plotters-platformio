@@ -26,15 +26,13 @@
 
 #pragma once
 
-#define USE_POLAR_MODE false
+#define USE_POLAR_MODE true
 
-#if USE_POLAR_MODE
-#include "PolarSettings.h"
-#else
-#include "CartesianSettings.h"
-#endif
+#define ENABLE_SOFT_LIMIT true
 
 #define DEBUG_MODE false
+#define PRODUCTION_MODE true // disables buttons
+#define ENCODER_DEBUG false
 
 // STEPPERS CONFIGURATIONS
 #define STEP_1_PIN 5
@@ -55,8 +53,6 @@
 //UV LED CONFIGURATIONS
 #define UV_PIN 7
 #define UV_AUTO_TURN_OFF_TIME 3000 // ms
+#define GO_TO_START_OF_MAZE 60000 // ms
 
-// SOFT LIMITS SETTINGS
-#define ENABLE_SOFT_LIMIT false
-
-struct Point { float x, y; };
+struct Point { int x, y; };

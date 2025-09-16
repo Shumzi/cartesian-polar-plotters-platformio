@@ -15,13 +15,10 @@ private:
     IEncoder* encoder2;
     IMode* mode;
     bool uv_state = false;
+    bool went_to_start_of_maze = false;
     unsigned long lastMovementTime;
-    // int encoder_1_register[4] = {0,0,0,0};
-    // int encoder_2_register[4] = {0,0,0,0};
-    // int encoder_1_register_loc = 0;
-    // int encoder_2_register_loc = 0;
     
-    void update_uv()
+    void update_moved()
     {
         lastMovementTime = millis();
         if (!uv_state)
@@ -29,6 +26,7 @@ private:
             uv_state = HIGH;
             digitalWrite(UV_PIN, uv_state);
         }
+        went_to_start_of_maze = false;
     }
 
     void check_idle()
@@ -37,8 +35,65 @@ private:
         {
             uv_state = LOW;
             digitalWrite (UV_PIN, uv_state);
-            lastMovementTime = millis();
         }
+        if (!went_to_start_of_maze && (millis() - lastMovementTime) > GO_TO_START_OF_MAZE)
+        {
+            mode->go_to_start_of_maze();
+            went_to_start_of_maze = true;
+        }
+    }
+
+    void home_when_press(IEncoder* enc)
+    {
+        static bool was_pressed = false;
+        if(enc->is_pressed())
+        {
+            if(!was_pressed)
+            {
+                mode->go_home();
+            }
+            was_pressed = true;
+        }
+        else
+            was_pressed = false;
+    }
+    
+    void print_stats_when_press(IEncoder* e)
+    {
+        static bool was_pressed = false;
+        if(e->is_pressed())
+        {
+            if(!was_pressed)
+            {
+                Point locs = mode->get_motor_lengths();
+                Serial.print("motor 1 Count: ");
+                Serial.println(locs.x);
+                Serial.print(", motor 2 Count: ");
+                Serial.println(locs.y);
+            }
+            was_pressed = true;
+        }
+        else
+            was_pressed = false;
+    }
+
+    void print_xy_when_press(IEncoder* e)
+    {
+        static bool was_pressed = false;
+        if(e->is_pressed())
+        {
+            if(!was_pressed)
+            {
+                Point locs = mode->get_xy();
+                Serial.print("X Count: ");
+                Serial.println(locs.x);
+                Serial.print("Y Count: ");
+                Serial.println(locs.y);
+            }
+            was_pressed = true;
+        }
+        else
+            was_pressed = false;
     }
 
 public:
@@ -47,24 +102,38 @@ public:
     { 
         pinMode(UV_PIN, OUTPUT);
     }
-        
+
     void loop() 
     {
         int delta1 = encoder1->readDelta();
         int delta2 = encoder2->readDelta();
-        // if (delta1 != 0)
-        //     encoder_1_register[encoder_1_register_loc];
-        // if (delta2 != 0)
-        //     encoder_2_register[encoder_2_register_loc];
+        #if ENCODER_DEBUG
+        if(delta1 != 0 || delta2 != 0)
+        {
+            Serial.print("system got from encoder: ");
+            Serial.println(delta1);
+            Serial.println(delta2);   
+        }
+        #endif
+
         bool moved = mode->updateEndEffector(delta1, delta2);
         motor1->run();
         motor2->run();
 
         if(moved)
-            update_uv();
+            update_moved();
         else
             check_idle();
+        #if !PRODUCTION_MODE
+        home_when_press(encoder1);
+        print_xy_when_press(encoder2);
+        #endif
     }
 
-    void calibrate() { mode->calibrate(); }
+    void calibrate() 
+    { 
+        mode->calibrate(); 
+        lastMovementTime = millis();
+    }
+
 };

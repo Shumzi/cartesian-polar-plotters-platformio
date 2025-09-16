@@ -12,8 +12,7 @@ class RotaryEncoder : public IEncoder
     const int push_button_pin_;
     byte prev_encoder_read_;
     byte new_encoder_read_;
-    // int concensus_read[4] = {0,0,0,0};
-    // int concensus_read_loc = 0;
+    int turn_direction_sum = 0;
   public:  
   int readDelta()
     {
@@ -24,14 +23,25 @@ class RotaryEncoder : public IEncoder
       switch (check_direction) // see https://commons.wikimedia.org/wiki/File:Incremental_directional_encoder.gif
       {
         case 1: case 7: case 8: case 14:
-          // Serial.println("-1");
-          return -1;
+          turn_direction_sum--;
+          break;
         case 2: case 4: case 11: case 13:
-          // Serial.println("1");
-          return 1;
+          turn_direction_sum++;
+          break;
         default:
           return 0;
       }
+      #if ENCODER_DEBUG
+      Serial.println(check_direction);
+      Serial.println(turn_direction_sum);
+      #endif
+      if(abs(turn_direction_sum) == 4)
+      {
+        int res = turn_direction_sum;
+        turn_direction_sum = 0;
+        return res;
+      }
+      return 0;
     }
 
     RotaryEncoder(int bit_0_pin,int bit_1_pin,int push_button_pin)
@@ -43,8 +53,9 @@ class RotaryEncoder : public IEncoder
       pinMode(push_button_pin_, INPUT_PULLUP);
     }
 
-    bool is_pressed(){
+    bool is_pressed() override{
       return !digitalRead(push_button_pin_);
     }
+
 
 };

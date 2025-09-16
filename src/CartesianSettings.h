@@ -1,14 +1,13 @@
 #pragma once
 
-#define MINI_SETUP false
+#define MINI_SETUP true
 
 #define X_MAX_SPEED 3000
 #define Y_MAX_SPEED 2000
 #define X_ACCELERATION 1500
 #define Y_ACCELERATION 1000
 
-#define STEPPER_X_STEPSIZE 4
-#define STEPPER_Y_STEPSIZE 4
+#define STEPPER_STEPSIZE 4
 
 // settings for the miniature version of the cartesian setup (i.e. not the full-size exhibit one)
 #if MINI_SETUP
@@ -28,3 +27,6 @@
 #define Y_MAX_LIMIT 500
 #define X_MAX_LIMIT 780
 #endif
+
+#define CARTESIAN_X_MAZE (-200)
+#define CARTESIAN_Y_MAZE (500)
