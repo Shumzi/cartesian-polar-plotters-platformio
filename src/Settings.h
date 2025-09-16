@@ -28,11 +28,7 @@
 
 #define USE_POLAR_MODE false
 
-#if USE_POLAR_MODE
-#include "PolarSettings.h"
-#else
-#include "CartesianSettings.h"
-#endif
+#define ENABLE_SOFT_LIMIT true
 
 #define MOTOR_DEBUG false
 #define ENCODER_DEBUG true
@@ -57,7 +53,4 @@
 #define UV_PIN 7
 #define UV_AUTO_TURN_OFF_TIME 3000 // ms
 
-// SOFT LIMITS SETTINGS
-#define ENABLE_SOFT_LIMIT false
-
-struct Point { float x, y; };
+struct Point { int x, y; };
