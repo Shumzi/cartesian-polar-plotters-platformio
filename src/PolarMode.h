@@ -20,10 +20,10 @@ class PolarMode : public IMode {
         as->moveTo(-5000);
     }
 
-    void finish_calibrate_switches(AccelStepper* as)
+    void finish_calibrate_switches(AccelStepper* as, int pos)
     {   
-        as->setCurrentPosition(0);
-        as->moveTo(0);
+        as->setCurrentPosition(pos * STEPPER_STEPSIZE);
+        as->moveTo(pos * STEPPER_STEPSIZE);
         as->setMaxSpeed(MAX_SPEED);
         as->setAcceleration(ACCELERATION);
     }   
@@ -48,9 +48,11 @@ class PolarMode : public IMode {
             else
                 right_at_target = true;
         }
-
-        finish_calibrate_switches(stepper_left);
-        finish_calibrate_switches(stepper_right);
+        Point p = calc_polar_from_xy(0,0);
+        l_left = p.x;
+        l_right = p.y;
+        finish_calibrate_switches(stepper_left, l_left);
+        finish_calibrate_switches(stepper_right, l_right);
 
     }
 
@@ -92,36 +94,61 @@ class PolarMode : public IMode {
     */
     Point calc_xy_from_polar(float l1, float l2)
     {
-        const float d = DIST_BETWEEN_MOTORS;
-        if (l1 + l2 <= d || fabs(l1 - l2) >= d)
-            return Point{-10000,-10000};
-        float x = (l1*l1 - l2*l2 + d*d) / (2.0f * d);
-        float r2 = l1*l1 - x*x;
-        if (r2 < -1e-6) 
-            return Point{-10000,-10000};
-        float y = sqrt(max(0.0f, r2));
-        return Point{int(x),int(y)};
+        // calculate the current height and width
+        /**
+         h = ?, w = ?
+        1. (dis - w)^2 + h^2 = l1^2
+        2. w^2 + h^2 = l2^2
+        --> (motors_distance-w)^2 - w^2 = l1^2 - l2^2
+        --> motors_distance^2 -2*motors_distance*w  = l1^2 - l2^2
+        **/
+
+        double w = (l1 * l1 - l2 * l2 - double(MOTORS_DISTANCE) * MOTORS_DISTANCE) / (-2 * double(MOTORS_DISTANCE));
+        double h = sqrt(l2 * l2 - w * w);
+        int x = int(double(MOTORS_DISTANCE) - w + X_OFFSET);
+        int y = int(-1 * (h + Y_OFFSET));
+        Serial.println("conversion to cartesian was");
+        Serial.println("cartesian");
+        Serial.print(x);
+        Serial.print(" ");
+        Serial.println(y);
+        Serial.println("polar");
+        Serial.print(l1);
+        Serial.print(" ");
+        Serial.println(l2);
+        return Point{x,y};
     }
 
     Point calc_polar_from_xy(int x, int y)
     {
-        //todo: implement.
-        // double h = (-1 * y) - Y_OFFSET;
-        // double w = -1 * (x - X_OFFSET - double(MOTORS_DISTANCE));
-        // int l2 = int(sqrt(h * h + w * w)) * LEFT_STEPS_PER_MM;
-        // w = w - double(MOTORS_DISTANCE);
-        // int l1 = int(sqrt(h * h + w * w)) * RIGHT_STEPS_PER_MM;
-        // return Point{l1,l2};
-        return Point{0,0};
-
+        double h = (-1 * y) - Y_OFFSET;
+        double w = -1 * (x - X_OFFSET - double(MOTORS_DISTANCE));
+        int l2 = int(sqrt(h * h + w * w));
+        w = w - double(MOTORS_DISTANCE);
+        int l1 = int(sqrt(h * h + w * w));
+        
+        Serial.println("conversion to polar was");
+        Serial.println("cartesian");
+        Serial.print(x);
+        Serial.print(" ");
+        Serial.println(y);
+        Serial.println("polar");
+        Serial.print(l1);
+        Serial.print(" ");
+        Serial.println(l2);
+        
+        return Point{l1,l2};
     }
         
     
     void calibrate() override
     {
         #if DEBUG_MODE
-        finish_calibrate_switches(stepper_left);
-        finish_calibrate_switches(stepper_right);
+        Point p = calc_polar_from_xy(0,0);
+        l_left = p.x;
+        l_right = p.y;
+        finish_calibrate_switches(stepper_left, l_left);
+        finish_calibrate_switches(stepper_right, l_right);
         #else
 
         initial_move_cables_up();
@@ -141,6 +168,10 @@ class PolarMode : public IMode {
         #endif
         #if ENABLE_SOFT_LIMIT
         Point n = calc_xy_from_polar(n_left,n_right);
+        Serial.print(n.x);
+        Serial.print(" ");
+        Serial.println(" ");
+        
         if(!is_within_bounds(n.x,n.y))
             return false;
         #endif
@@ -166,15 +197,18 @@ class PolarMode : public IMode {
 
     void go_home() override
     {
-        stepper_left->moveTo(POLAR_LEFT_HOME);
-        stepper_right->moveTo(POLAR_RIGHT_HOME);
+
+        Point p = calc_polar_from_xy(0,0);
+        stepper_left->moveTo(p.x * STEPPER_STEPSIZE);
+        stepper_right->moveTo(p.y * STEPPER_STEPSIZE);
 
         while(stepper_left->run() || stepper_right->run())
         {
             stepper_left->run();
             stepper_right->run();
         }
-        l_left = 0;
-        l_right = 0;
+        l_left = p.x;
+        l_right = p.y;
+
     }
 };

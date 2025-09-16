@@ -30,8 +30,8 @@
 
 #define ENABLE_SOFT_LIMIT true
 
-#define MOTOR_DEBUG false
-#define ENCODER_DEBUG true
+#define DEBUG_MODE true
+#define ENCODER_DEBUG false
 
 // STEPPERS CONFIGURATIONS
 #define STEP_1_PIN 5
